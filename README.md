@@ -1,21 +1,21 @@
 # Cheats Démo
 
 # Partie 1
-## Doc 
+## Doc
 https://angular.io/guide/upgrade#using-upgrademodule-with-angular-ngmodules
 
 ## Ajout de la dépendance angular upgrade
 
-npm i @angular/upgrade
+npm i @angular/upgrade@15.1.2
 
 ## Dépendance protractor
 
 Suppression ou upgrade en v7
 ```json
-"protractor": "^7",
+"protractor": "^7.0.0",
 ```
 
-## Modifications dans angular.json pour charger les images et templates
+## Modifications dans les assets angular.json pour charger les images et templates
 
 ```json
 {
@@ -82,7 +82,14 @@ platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.error(err));
 ```
 
-# Partie 2 
+# Partie 2
+
+## Ajouter les types angular 
+permet de faire les imports sans erreur
+import {IAngularStatic, IDirectiveFactory} from "angular";
+```shell
+npm i --save-dev @types/angular@1.5.x
+```
 ## phone.model.ts
 ```typescript
 export interface IPhone{
