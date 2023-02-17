@@ -83,10 +83,10 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 # Partie 2
 
 ## Ajouter les types angular
-permet de faire les imports sans erreur
-import {IAngularStatic, IDirectiveFactory} from "angular";
 ```shell
 npm i --save-dev @types/angular@1.5.x
+npm i --save-dev @types/angular-route@^1.7.2
+
 ```
 ## phone.model.ts
 ```typescript
@@ -152,62 +152,192 @@ export interface IPhoneDetail{
 
 ```
 
-### phone.service.ts
-```typescript
-  constructor(protected httpClient:HttpClient) { }
-
-  query():Observable<HttpResponse<IPhone[]>>{
-    return this.httpClient.get<IPhone[]>('phones/phones.json', {observe:"response"});
-  }
-
-  get(id:string):Observable<HttpResponse<IPhoneDetail>>{
-    return this.httpClient.get<IPhoneDetail>(`phones/${id}.json `, {observe:"response"});
-  }
-```
-
-### app.module.ts
-```typescript
-@NgModule({
-  declarations: [
-    AppComponent,
-    PhoneListComponent,
-    PhoneDetailComponent,
-    CheckmarkPipe
-  ],
-  imports: [
-    BrowserModule,
-    UpgradeModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule
-  ],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
-```
-
 ### main.ts
 ```typescript
-declare const angular: angular.IAngularStatic;
-interface DowngradeComponent {
-  alias: string;
-  ngComponent: any;
-}
+import {IDirectiveFactory, module} from "angular";
 
-const ngDowngradeComponents: ReadonlyArray<DowngradeComponent> = [
-  // alias must match selector name as CamelCase
-  // otherwise angularjs won't load them
-  {alias: 'appPhoneList', ngComponent: PhoneListComponent},
-  {alias: 'appPhoneDetail', ngComponent: PhoneDetailComponent},
-];
-
-ngDowngradeComponents.forEach(dgComponent =>
-  angular
-    .module('phonecatApp')
-    .directive(dgComponent.alias, downgradeComponent({component: dgComponent.ngComponent}) as angular.IDirectiveFactory)
-);
+module('phonecatApp')
+    .directive("appPhoneDetail", downgradeComponent({component: PhoneDetailComponent}) as IDirectiveFactory)
 ```
 
+### phone.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import {HttpClient, HttpResponse} from "@angular/common/http";
+import {IPhone, IPhoneDetail} from "./phone.model";
+import {Observable} from "rxjs";
+
+@Injectable({
+    providedIn: 'root'
+})
+export class PhoneService {
+
+    constructor(protected httpClient:HttpClient) { }
+
+    query():Observable<HttpResponse<IPhone[]>>{
+        return this.httpClient.get<IPhone[]>('phones/phones.json', {observe:"response"});
+    }
+
+    get(id:string):Observable<HttpResponse<IPhoneDetail>>{
+        return this.httpClient.get<IPhoneDetail>(`phones/${id}.json `, {observe:"response"});
+    }
+}
+```
+
+### phone-detail.component.html
+```html
+<div *ngIf="phone">
+
+    <div class="phone-images">
+        <img [src]="mainImageUrl ? mainImageUrl : phone.images[0]" class="phone"/>
+    </div>
+
+    <h1>{{phone.name}}</h1>
+
+    <p>{{phone.description}}</p>
+
+    <ul class="phone-thumbs">
+        <li *ngFor="let img of phone.images">
+            <img [src]="img" (click)="setImage(img)"/>
+        </li>
+    </ul>
+
+    <ul class="specs">
+        <li>
+            <span>Availability and Networks</span>
+            <dl>
+                <dt>Availability</dt>
+                <dd *ngFor="let availability of phone.availability">{{availability}}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Battery</span>
+            <dl>
+                <dt>Type</dt>
+                <dd>{{phone.battery.type}}</dd>
+                <dt>Talk Time</dt>
+                <dd>{{phone.battery.talkTime}}</dd>
+                <dt>Standby time (max)</dt>
+                <dd>{{phone.battery.standbyTime}}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Storage and Memory</span>
+            <dl>
+                <dt>RAM</dt>
+                <dd>{{phone.storage.ram}}</dd>
+                <dt>Internal Storage</dt>
+                <dd>{{phone.storage.flash}}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Connectivity</span>
+            <dl>
+                <dt>Network Support</dt>
+                <dd>{{phone.connectivity.cell}}</dd>
+                <dt>WiFi</dt>
+                <dd>{{phone.connectivity.wifi}}</dd>
+                <dt>Bluetooth</dt>
+                <dd>{{phone.connectivity.bluetooth}}</dd>
+                <dt>Infrared</dt>
+                <dd>{{phone.connectivity.infrared }}</dd>
+                <dt>GPS</dt>
+                <dd>{{phone.connectivity.gps}}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Android</span>
+            <dl>
+                <dt>OS Version</dt>
+                <dd>{{phone.android.os}}</dd>
+                <dt>UI</dt>
+                <dd>{{phone.android.ui}}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Size and Weight</span>
+            <dl>
+                <dt>Dimensions</dt>
+                <dd *ngFor="let dim of phone.sizeAndWeight.dimensions">{{dim}}</dd>
+                <dt>Weight</dt>
+                <dd>{{phone.sizeAndWeight.weight}}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Display</span>
+            <dl>
+                <dt>Screen size</dt>
+                <dd>{{phone.display.screenSize}}</dd>
+                <dt>Screen resolution</dt>
+                <dd>{{phone.display.screenResolution}}</dd>
+                <dt>Touch screen</dt>
+                <dd>{{phone.display.touchScreen }}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Hardware</span>
+            <dl>
+                <dt>CPU</dt>
+                <dd>{{phone.hardware.cpu}}</dd>
+                <dt>USB</dt>
+                <dd>{{phone.hardware.usb}}</dd>
+                <dt>Audio / headphone jack</dt>
+                <dd>{{phone.hardware.audioJack}}</dd>
+                <dt>FM Radio</dt>
+                <dd>{{phone.hardware.fmRadio}}</dd>
+                <dt>Accelerometer</dt>
+                <dd>{{phone.hardware.accelerometer}}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Camera</span>
+            <dl>
+                <dt>Primary</dt>
+                <dd>{{phone.camera.primary}}</dd>
+                <dt>Features</dt>
+                <dd>{{phone.camera.features.join(', ')}}</dd>
+            </dl>
+        </li>
+        <li>
+            <span>Additional Features</span>
+            <dd>{{phone.additionalFeatures}}</dd>
+        </li>
+    </ul>
+</div>
+```
+
+### phone-detail.component.ts
+```typescript
+import { Component } from '@angular/core';
+import {IPhoneDetail} from "../phone.model";
+import {PhoneService} from "../phone.service";
+import {LegacyRouteService} from "../app.module";
+
+@Component({
+  selector: 'app-phone-detail',
+  templateUrl: './phone-detail.component.html',
+  styleUrls: ['./phone-detail.component.css']
+})
+export class PhoneDetailComponent {
+
+  phone?:IPhoneDetail;
+
+  mainImageUrl?:string;
+
+  constructor(private phoneService:PhoneService,
+              private legacyRoutingService:LegacyRouteService) { }
+
+  ngOnInit(): void {
+    if(this.legacyRoutingService.current){
+      this.phoneService.get(this.legacyRoutingService.current.params['phoneId']).subscribe(s => this.phone = s.body!)
+    }
+  }
+
+  setImage(img: string) {
+    this.mainImageUrl = img;
+  }
+}
+```
 ### phone-list.component.html
 ```html
 <div class="container-fluid">
@@ -247,6 +377,43 @@ ngDowngradeComponents.forEach(dgComponent =>
 </div>
 ```
 
+### app.module.ts pour service
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppComponent } from './app.component';
+import {UpgradeModule} from "@angular/upgrade/static";
+import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
+
+import 'angular-route';
+import {route} from 'angular';
+import {HttpClientModule} from "@angular/common/http";
+
+export abstract class LegacyRouteService implements route.IRouteService {
+  abstract reload(): void;
+  routes: any;
+  current?: route.ICurrentRoute | undefined;
+  abstract updateParams(newParams: { [key: string]: string; }): void;
+}
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    PhoneDetailComponent
+  ],
+  imports: [
+    BrowserModule,
+    UpgradeModule,
+    HttpClientModule
+  ],
+  providers:[
+    {provide: LegacyRouteService, useFactory: (i: any) => i.get('$route'), deps: ['$injector']},
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
 ### phone-list.components.ts
 ```typescript
 import { Component, OnInit } from '@angular/core';
