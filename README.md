@@ -84,9 +84,7 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 
 ## Ajouter les types angular
 ```shell
-npm i --save-dev @types/angular@1.5.x
-npm i --save-dev @types/angular-route@^1.7.2
-
+npm i --save-dev @types/angular@1.5.x @types/angular-route@^1.7.2
 ```
 ## phone.model.ts
 ```typescript
@@ -99,7 +97,7 @@ export interface IPhone{
 }
 
 export interface IPhoneDetail{
-  additionalFeatures: number;
+  additionalFeatures: string;
   android:{
     os:string;
     ui:string;
@@ -160,34 +158,10 @@ module('phonecatApp')
     .directive("appPhoneDetail", downgradeComponent({component: PhoneDetailComponent}) as IDirectiveFactory)
 ```
 
-### phone.service.ts
-```typescript
-import { Injectable } from '@angular/core';
-import {HttpClient, HttpResponse} from "@angular/common/http";
-import {IPhone, IPhoneDetail} from "./phone.model";
-import {Observable} from "rxjs";
 
-@Injectable({
-    providedIn: 'root'
-})
-export class PhoneService {
-
-    constructor(protected httpClient:HttpClient) { }
-
-    query():Observable<HttpResponse<IPhone[]>>{
-        return this.httpClient.get<IPhone[]>('phones/phones.json', {observe:"response"});
-    }
-
-    get(id:string):Observable<HttpResponse<IPhoneDetail>>{
-        return this.httpClient.get<IPhoneDetail>(`phones/${id}.json `, {observe:"response"});
-    }
-}
-```
 
 ### phone-detail.component.html
 ```html
-<div *ngIf="phone">
-
     <div class="phone-images">
         <img [src]="mainImageUrl ? mainImageUrl : phone.images[0]" class="phone"/>
     </div>
@@ -303,8 +277,9 @@ export class PhoneService {
             <dd>{{phone.additionalFeatures}}</dd>
         </li>
     </ul>
-</div>
 ```
+
+
 
 ### phone-detail.component.ts
 ```typescript
@@ -323,21 +298,46 @@ export class PhoneDetailComponent {
   phone?:IPhoneDetail;
 
   mainImageUrl?:string;
-
-  constructor(private phoneService:PhoneService,
-              private legacyRoutingService:LegacyRouteService) { }
-
-  ngOnInit(): void {
-    if(this.legacyRoutingService.current){
-      this.phoneService.get(this.legacyRoutingService.current.params['phoneId']).subscribe(s => this.phone = s.body!)
-    }
-  }
+ 
+  // constructor(private phoneService:PhoneService,
+  //             private legacyRoutingService:LegacyRouteService) { }
+  //
+  // ngOnInit(): void {
+  //   if(this.legacyRoutingService.current){
+  //     this.phoneService.get(this.legacyRoutingService.current.params['phoneId']).subscribe(s => this.phone = s.body!)
+  //   }
+  // }
 
   setImage(img: string) {
     this.mainImageUrl = img;
   }
 }
 ```
+
+### phone.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import {HttpClient, HttpResponse} from "@angular/common/http";
+import {IPhone, IPhoneDetail} from "./phone.model";
+import {Observable} from "rxjs";
+
+@Injectable({
+    providedIn: 'root'
+})
+export class PhoneService {
+
+    constructor(protected httpClient:HttpClient) { }
+
+    query():Observable<HttpResponse<IPhone[]>>{
+        return this.httpClient.get<IPhone[]>('phones/phones.json', {observe:"response"});
+    }
+
+    get(id:string):Observable<HttpResponse<IPhoneDetail>>{
+        return this.httpClient.get<IPhoneDetail>(`phones/${id}.json `, {observe:"response"});
+    }
+}
+```
+
 ### phone-list.component.html
 ```html
 <div class="container-fluid">
