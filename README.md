@@ -34,6 +34,25 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 ## styles et le scripts
 
 ```json
+"assets": [
+    "src/favicon.ico",
+    "src/assets",
+    {
+    "glob": "**/*.html",
+    "input": "src/legacy",
+    "output": "/"
+    },
+    {
+    "glob": "**/*.json",
+    "input": "src/legacy/phones",
+    "output": "/phones"
+    },
+    {
+    "glob": "**/*.jpg",
+    "input": "src/legacy/img/phones",
+    "output": "/img/phones"
+    }
+],
 "styles": [
   "src/styles.css",
   "node_modules/bootstrap/dist/css/bootstrap.css",
