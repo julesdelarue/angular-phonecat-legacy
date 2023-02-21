@@ -169,6 +169,10 @@ export interface IPhoneDetail{
 
 ```
 
+
+### création nouveau composant
+ng g c phone-detail
+
 ### main.ts
 ```typescript
 import {IDirectiveFactory, module} from "angular";
